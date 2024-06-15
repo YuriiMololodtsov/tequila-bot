@@ -2,31 +2,40 @@ const { Telegraf } = require('telegraf');
 require('dotenv').config();
 const { createClient } = require('@supabase/supabase-js');
 
+console.log('Starting bot...');
+
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
+console.log('Supabase URL:', supabaseUrl);
+console.log('Supabase Key:', supabaseKey);
+
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 bot.command('start', (ctx) => {
   console.log('Получена команда /start');
-  ctx.reply('Добро пожаловать бот группы - Наливай, а то уйду! Введите название станции метро, чтобы найти ближайшие бары.');
+  ctx.reply('Добро пожаловать бот группы Наливай, а то уйду! Введите название станции метро, чтобы найти ближайшие бары.');
 });
 
 bot.hears(/.*/, async (ctx) => {
   const stationName = ctx.message.text;
   console.log(`Поиск станции метро: ${stationName}`);
+
+  // Логирование перед запросом к базе данных
+  console.log('Выполнение запроса к базе данных...');
+
   const { data: stations, error: stationError } = await supabase
     .from('metro_stations')
     .select('*')
     .ilike('name', `%${stationName}%`);
 
+  // Логирование после запроса к базе данных
+  console.log('Запрос выполнен. Данные станций:', stations);
   if (stationError) {
     console.log(`Ошибка поиска станции метро: ${stationError.message}`);
     return ctx.reply('Произошла ошибка при поиске станции метро. Попробуйте еще раз позже.');
   }
-
-  console.log('Найденные станции:', stations);
 
   if (stations.length === 0) {
     console.log('Станция метро не найдена');
