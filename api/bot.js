@@ -21,14 +21,12 @@ bot.command('start', (ctx) => {
 });
 
 bot.hears(/.*/, async (ctx) => {
-  const stationName = ctx.message.text;
-  console.log(`Поиск станции метро: ${stationName}`);
+  console.log('Получено сообщение, выполняем запрос к таблице metro_stations без фильтров...');
 
   try {
     const { data: stations, error } = await supabase
       .from('metro_stations')
-      .select('*')
-      .ilike('name', `%${stationName}%`);
+      .select('*');
 
     if (error) {
       console.error('Ошибка запроса станций метро:', error);
