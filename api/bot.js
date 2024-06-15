@@ -48,7 +48,7 @@ bot.hears(/.*/, async (ctx) => {
   const { data: testStations, error: testStationError } = await supabase
     .from('metro_stations')
     .select('*')
-    .eq('name', 'Невский проспект');
+    .ilike('name', '%Невский проспект%');
 
   console.log('Тестовый запрос выполнен. Данные станций:', testStations);
   if (testStationError) {
@@ -58,7 +58,7 @@ bot.hears(/.*/, async (ctx) => {
   const { data: stations, error: stationError } = await supabase
     .from('metro_stations')
     .select('*')
-    .eq('name', stationName);
+    .ilike('name', `%${stationName}%`);
 
   console.log('Запрос выполнен. Данные станций:', stations);
   if (stationError) {
