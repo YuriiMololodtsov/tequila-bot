@@ -4,14 +4,18 @@ const { createClient } = require('@supabase/supabase-js');
 
 console.log('Starting bot...');
 
+// Логирование переменных окружения
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
+const botToken = process.env.BOT_TOKEN;
+
 console.log('Supabase URL:', supabaseUrl);
 console.log('Supabase Key:', supabaseKey);
+console.log('Bot Token:', botToken);
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const bot = new Telegraf(process.env.BOT_TOKEN);
+const bot = new Telegraf(botToken);
 
 bot.command('start', (ctx) => {
   console.log('Получена команда /start');
@@ -27,7 +31,7 @@ bot.hears(/.*/, async (ctx) => {
   const { data: testStations, error: testStationError } = await supabase
     .from('metro_stations')
     .select('*')
-    .ilike('name', '%Невский проспект%');
+    .eq('name', 'Невский проспект');
 
   console.log('Тестовый запрос выполнен. Данные станций:', testStations);
   if (testStationError) {
@@ -37,7 +41,7 @@ bot.hears(/.*/, async (ctx) => {
   const { data: stations, error: stationError } = await supabase
     .from('metro_stations')
     .select('*')
-    .ilike('name', `%${stationName}%`);
+    .eq('name', stationName);
 
   // Логирование после запроса к базе данных
   console.log('Запрос выполнен. Данные станций:', stations);
