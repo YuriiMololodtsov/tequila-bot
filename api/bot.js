@@ -27,28 +27,22 @@ bot.hears(/.*/, async (ctx) => {
   try {
     const { data: stations, error: stationError } = await supabase
       .from('metro_stations')
-      .select('*');
+      .select('*')
+      .ilike('name', `%${stationName}%`);
 
     if (stationError) {
       console.error('Ошибка запроса станций метро:', stationError);
       return ctx.reply('Произошла ошибка при поиске станции метро. Попробуйте еще раз позже.');
     }
 
-    console.log('Все станции метро:', stations);
+    console.log('Найденные станции метро:', stations);
 
     if (stations.length === 0) {
       console.log('Станция метро не найдена');
       return ctx.reply('Станция метро не найдена. Попробуйте еще раз.');
     }
 
-    const station = stations.find(station => station.name.includes(stationName));
-    if (!station) {
-      console.log('Станция метро не найдена после фильтрации');
-      return ctx.reply('Станция метро не найдена. Попробуйте еще раз.');
-    }
-
-    console.log(`Найдена станция метро: ${station.name} с ID: ${station.id}`);
-
+    const station = stations[0];
     const { data: bars, error: barsError } = await supabase
       .from('bars')
       .select('*')
@@ -62,7 +56,7 @@ bot.hears(/.*/, async (ctx) => {
     console.log('Найденные бары:', bars);
 
     if (bars.length === 0) {
-      console.log('Бары не найдены на этой станции');
+      console.log('Бары не найдены на этой станции.');
       return ctx.reply('Бары не найдены на этой станции.');
     }
 
@@ -70,7 +64,6 @@ bot.hears(/.*/, async (ctx) => {
       return `${bar.name}\n${bar.description}\nАдрес: ${bar.address}\nСкидки: ${bar.discounts}\n[Открыть карту](https://www.google.com/maps/search/?api=1&query=${bar.latitude},${bar.longitude})`;
     });
 
-    console.log('Найдено баров:', bars.length);
     ctx.reply(barMessages.join('\n\n'), { parse_mode: 'Markdown' });
   } catch (err) {
     console.error('Ошибка выполнения запроса:', err);
