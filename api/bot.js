@@ -23,7 +23,16 @@ bot.hears(/.*/, async (ctx) => {
   console.log(`Поиск станции метро: ${stationName}`);
 
   // Логирование перед запросом к базе данных
-  console.log('Выполнение запроса к базе данных...');
+  console.log('Выполнение тестового запроса к базе данных...');
+  const { data: testStations, error: testStationError } = await supabase
+    .from('metro_stations')
+    .select('*')
+    .ilike('name', '%Невский проспект%');
+
+  console.log('Тестовый запрос выполнен. Данные станций:', testStations);
+  if (testStationError) {
+    console.log(`Ошибка тестового запроса: ${testStationError.message}`);
+  }
 
   const { data: stations, error: stationError } = await supabase
     .from('metro_stations')
