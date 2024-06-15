@@ -1,7 +1,7 @@
 const { Telegraf } = require('telegraf');
+require('dotenv').config();
 
-// Вставьте ваш токен от BotFather
-const bot = new Telegraf('YOUR_BOT_TOKEN_HERE');
+const bot = new Telegraf(process.env.BOT_TOKEN);
 
 bot.start((ctx) => ctx.reply('Welcome!'));
 bot.help((ctx) => ctx.reply('Send me a sticker'));
@@ -10,6 +10,6 @@ bot.hears('hi', (ctx) => ctx.reply('Hello'));
 
 bot.launch();
 
-// Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
