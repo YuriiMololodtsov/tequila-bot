@@ -2,12 +2,6 @@ const { Telegraf } = require('telegraf');
 require('dotenv').config();
 const { createClient } = require('@supabase/supabase-js');
 
-// Логирование для отладки
-console.log('Загрузка переменных окружения...');
-console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
-console.log('SUPABASE_KEY:', process.env.SUPABASE_KEY);
-console.log('BOT_TOKEN:', process.env.BOT_TOKEN);
-
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
@@ -16,7 +10,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 
 bot.command('start', (ctx) => {
   console.log('Получена команда /start');
-  ctx.reply('Добро пожаловать бот группы Наливай, а то уйду! Введите название станции метро, чтобы найти ближайшие бары.');
+  ctx.reply('Добро пожаловать бот группы - Наливай, а то уйду! Введите название станции метро, чтобы найти ближайшие бары.');
 });
 
 bot.hears(/.*/, async (ctx) => {
@@ -29,7 +23,10 @@ bot.hears(/.*/, async (ctx) => {
 
   if (stationError) {
     console.log(`Ошибка поиска станции метро: ${stationError.message}`);
+    return ctx.reply('Произошла ошибка при поиске станции метро. Попробуйте еще раз позже.');
   }
+
+  console.log('Найденные станции:', stations);
 
   if (stations.length === 0) {
     console.log('Станция метро не найдена');
@@ -44,7 +41,10 @@ bot.hears(/.*/, async (ctx) => {
 
   if (barsError) {
     console.log(`Ошибка поиска баров: ${barsError.message}`);
+    return ctx.reply('Произошла ошибка при поиске баров. Попробуйте еще раз позже.');
   }
+
+  console.log('Найденные бары:', bars);
 
   if (bars.length === 0) {
     console.log('Бары не найдены на этой станции');
@@ -63,22 +63,21 @@ bot.catch((err, ctx) => {
   console.log(`Ошибка: ${err}`);
 });
 
-// Создание endpoint для Vercel
 module.exports = async (req, res) => {
+  console.log('Received request...');
   try {
     await bot.handleUpdate(req.body, res);
   } catch (err) {
     console.log(`Ошибка обработки обновления: ${err}`);
     res.status(500).send('Error handling update');
   }
+  console.log('Request handled.');
 };
 
-// Для локального запуска, если необходимо
 if (process.env.NODE_ENV !== 'production') {
   console.log('Запуск бота в режиме разработки...');
   bot.launch();
 }
 
-// Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
