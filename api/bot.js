@@ -21,26 +21,32 @@ bot.command('start', (ctx) => {
 });
 
 bot.hears(/.*/, async (ctx) => {
-  console.log('Получено сообщение, выполняем запрос к таблице metro_stations без фильтров...');
+  const stationName = ctx.message.text;
+  console.log(`Поиск станции метро: ${stationName}`);
 
   try {
-    const { data: stations, error } = await supabase
+    const { data: stations, error: stationError } = await supabase
       .from('metro_stations')
       .select('*');
 
-    if (error) {
-      console.error('Ошибка запроса станций метро:', error);
+    if (stationError) {
+      console.error('Ошибка запроса станций метро:', stationError);
       return ctx.reply('Произошла ошибка при поиске станции метро. Попробуйте еще раз позже.');
     }
 
-    console.log('Найденные станции метро:', stations);
+    console.log('Все станции метро:', stations);
 
     if (stations.length === 0) {
       console.log('Станция метро не найдена');
       return ctx.reply('Станция метро не найдена. Попробуйте еще раз.');
     }
 
-    const station = stations[0];
+    const station = stations.find(station => station.name.includes(stationName));
+    if (!station) {
+      console.log('Станция метро не найдена после фильтрации');
+      return ctx.reply('Станция метро не найдена. Попробуйте еще раз.');
+    }
+
     console.log(`Найдена станция метро: ${station.name} с ID: ${station.id}`);
 
     const { data: bars, error: barsError } = await supabase
