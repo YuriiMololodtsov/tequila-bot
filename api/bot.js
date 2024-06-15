@@ -9,9 +9,28 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const botToken = process.env.BOT_TOKEN;
 
-console.log('Supabase URL:', supabaseUrl);
-console.log('Supabase Key:', supabaseKey);
-console.log('Bot Token:', botToken);
+if (supabaseUrl) {
+  console.log('Supabase URL loaded successfully');
+} else {
+  console.log('Supabase URL not loaded');
+}
+
+if (supabaseKey) {
+  console.log('Supabase Key loaded successfully');
+} else {
+  console.log('Supabase Key not loaded');
+}
+
+if (botToken) {
+  console.log('Bot Token loaded successfully');
+} else {
+  console.log('Bot Token not loaded');
+}
+
+// Проверка наличия переменных окружения
+if (!supabaseUrl || !supabaseKey || !botToken) {
+  throw new Error('Переменные окружения не настроены правильно');
+}
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -26,8 +45,6 @@ bot.hears(/.*/, async (ctx) => {
   const stationName = ctx.message.text;
   console.log(`Поиск станции метро: ${stationName}`);
 
-  // Логирование перед запросом к базе данных
-  console.log('Выполнение тестового запроса к базе данных...');
   const { data: testStations, error: testStationError } = await supabase
     .from('metro_stations')
     .select('*')
@@ -43,7 +60,6 @@ bot.hears(/.*/, async (ctx) => {
     .select('*')
     .eq('name', stationName);
 
-  // Логирование после запроса к базе данных
   console.log('Запрос выполнен. Данные станций:', stations);
   if (stationError) {
     console.log(`Ошибка поиска станции метро: ${stationError.message}`);
