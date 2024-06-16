@@ -15,7 +15,6 @@ bot.command('start', (ctx) => {
 
 bot.hears(/.*/, async (ctx) => {
   const stationName = ctx.message.text;
-  console.log(`Поиск станции метро: ${stationName}`);
 
   try {
     const { data: stations, error: stationError } = await supabase
@@ -28,10 +27,7 @@ bot.hears(/.*/, async (ctx) => {
       return ctx.reply('Произошла ошибка при поиске станции метро. Попробуйте еще раз позже.');
     }
 
-    console.log('Найденные станции метро:', stations);
-
     if (stations.length === 0) {
-      console.log('Станция метро не найдена');
       return ctx.reply('Станция метро не найдена. Попробуйте еще раз.');
     }
 
@@ -46,19 +42,12 @@ bot.hears(/.*/, async (ctx) => {
       return ctx.reply('Произошла ошибка при поиске баров. Попробуйте еще раз позже.');
     }
 
-    console.log('Найденные бары:', bars);
-
     if (bars.length === 0) {
-      console.log('Бары не найдены на этой станции.');
       return ctx.reply('Бары не найдены на этой станции.');
     }
 
     for (const bar of bars) {
       const barMessage = `${bar.name}\n${bar.description}\nАдрес: ${bar.address}\nСкидки: ${bar.discounts}\n[Открыть карту](https://www.google.com/maps/search/?api=1&query=${bar.latitude},${bar.longitude})`;
-
-      console.log(`Отправка фото для бара: ${bar.name}`);
-      console.log(`Фото URL: ${bar.photo_url}`);
-      console.log(`Сообщение: ${barMessage}`);
 
       try {
         await ctx.replyWithPhoto(bar.photo_url, { caption: barMessage, parse_mode: 'Markdown' });
@@ -78,14 +67,12 @@ bot.catch((err) => {
 });
 
 module.exports = async (req, res) => {
-  console.log('Получен запрос...');
   try {
     await bot.handleUpdate(req.body, res);
   } catch (err) {
     console.error('Ошибка обработки обновления:', err);
     res.status(500).send('Ошибка обработки обновления');
   }
-  console.log('Запрос обработан.');
 };
 
 if (process.env.NODE_ENV !== 'production') {
