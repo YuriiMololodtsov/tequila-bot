@@ -44,12 +44,10 @@ bot.hears(/.*/, async (ctx) => {
       return ctx.reply('Бары не найдены на этой станции.');
     }
 
-    const barMessages = bars.map(bar => {
-      return `${bar.name}\n${bar.description}\nАдрес: ${bar.address}\nСкидки: ${bar.discounts}\n[Открыть карту](https://www.google.com/maps/search/?api=1&query=${bar.latitude},${bar.longitude})`;
-    });
+    for (const bar of bars) {
+      const barMessage = `${bar.name}\n${bar.description}\nАдрес: ${bar.address}\nСкидки: ${bar.discounts}\n[Открыть карту](https://www.google.com/maps/search/?api=1&query=${bar.latitude},${bar.longitude})`;
 
-    for (const message of barMessages) {
-      await ctx.reply(message, { parse_mode: 'Markdown' });
+      await ctx.replyWithPhoto(bar.photo_url, { caption: barMessage, parse_mode: 'Markdown' });
     }
   } catch (err) {
     ctx.reply('Произошла ошибка при выполнении запроса. Попробуйте еще раз позже.');
