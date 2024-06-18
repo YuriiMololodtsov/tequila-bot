@@ -47,7 +47,7 @@ bot.hears(/.*/, async (ctx) => {
     }
 
     for (const bar of bars) {
-      const barMessage = `${bar.name}\n${bar.description}\nАдрес: ${bar.address}\nСкидки: ${bar.discounts}\n[Открыть карту](https://www.google.com/maps/search/?api=1&query=${bar.latitude},${bar.longitude})`;
+      const barMessage = `${bar.name}\n\n${bar.description ? bar.description : 'Акций нет'}\n\nАдрес: ${bar.address}\n\nСкидки: ${bar.discounts ? bar.discounts : 'Нет'}\n\n[Открыть карту](https://www.google.com/maps/search/?api=1&query=${bar.latitude},${bar.longitude})`;
 
       try {
         await ctx.replyWithPhoto(bar.photo_url, { caption: barMessage, parse_mode: 'Markdown' });
